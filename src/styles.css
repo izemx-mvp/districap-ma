@@ -462,6 +462,38 @@
   pointer-events: none;
 }
 
+/* --- Product ---------------------------------------------------------- */
+
+@keyframes flip-up {
+  from {
+    opacity: 0;
+    transform: translateY(70%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes flip-down {
+  from {
+    opacity: 0;
+    transform: translateY(-70%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility flip-up {
+  animation: flip-up 220ms var(--ease-entrance) both;
+}
+
+@utility flip-down {
+  animation: flip-down 220ms var(--ease-entrance) both;
+}
+
 /* --- Navigation ------------------------------------------------------ */
 
 @utility mega-panel {
