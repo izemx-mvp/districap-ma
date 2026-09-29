@@ -16,6 +16,7 @@ import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DevisRouteImport } from './routes/devis'
+import { Route as NouveautesRouteImport } from './routes/nouveautes'
 import { Route as PanierRouteImport } from './routes/panier'
 import { Route as PlanDuSiteRouteImport } from './routes/plan-du-site'
 import { Route as RechercheRouteImport } from './routes/recherche'
@@ -57,6 +58,11 @@ const ContactRoute = ContactRouteImport.update({
 const DevisRoute = DevisRouteImport.update({
   id: '/devis',
   path: '/devis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NouveautesRoute = NouveautesRouteImport.update({
+  id: '/nouveautes',
+  path: '/nouveautes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PanierRoute = PanierRouteImport.update({
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
+  '/nouveautes': typeof NouveautesRoute
   '/panier': typeof PanierRoute
   '/plan-du-site': typeof PlanDuSiteRoute
   '/recherche': typeof RechercheRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
+  '/nouveautes': typeof NouveautesRoute
   '/panier': typeof PanierRoute
   '/plan-du-site': typeof PlanDuSiteRoute
   '/recherche': typeof RechercheRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
+  '/nouveautes': typeof NouveautesRoute
   '/panier': typeof PanierRoute
   '/plan-du-site': typeof PlanDuSiteRoute
   '/recherche': typeof RechercheRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/contact'
     | '/devis'
+    | '/nouveautes'
     | '/panier'
     | '/plan-du-site'
     | '/recherche'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/contact'
     | '/devis'
+    | '/nouveautes'
     | '/panier'
     | '/plan-du-site'
     | '/recherche'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/confidentialite'
     | '/contact'
     | '/devis'
+    | '/nouveautes'
     | '/panier'
     | '/plan-du-site'
     | '/recherche'
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ContactRoute: typeof ContactRoute
   DevisRoute: typeof DevisRoute
+  NouveautesRoute: typeof NouveautesRoute
   PanierRoute: typeof PanierRoute
   PlanDuSiteRoute: typeof PlanDuSiteRoute
   RechercheRoute: typeof RechercheRoute
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/devis'
       fullPath: '/devis'
       preLoaderRoute: typeof DevisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nouveautes': {
+      id: '/nouveautes'
+      path: '/nouveautes'
+      fullPath: '/nouveautes'
+      preLoaderRoute: typeof NouveautesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/panier': {
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfidentialiteRoute: ConfidentialiteRoute,
   ContactRoute: ContactRoute,
   DevisRoute: DevisRoute,
+  NouveautesRoute: NouveautesRoute,
   PanierRoute: PanierRoute,
   PlanDuSiteRoute: PlanDuSiteRoute,
   RechercheRoute: RechercheRoute,

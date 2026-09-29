@@ -28,3 +28,18 @@ export const AMBIANCE = {
   sonorisation: heroSono,
   securite: heroSecurite,
 };
+
+/**
+ * One distinct visual per top-level category (tiles, banners, mega menu).
+ * TODO(districap): replace product shots with ambiance photos when available.
+ */
+export const CATEGORY_COVERS: Record<string, string> = {
+  videosurveillance: heroVideo,
+  "alarme-intrusion": alarme,
+  "detection-incendie": heroSecurite,
+  "controle-acces": acces,
+  sonorisation: sono,
+  "videoprojection-affichage": av,
+  "audio-visioconference": heroSono,
+  "informatique-reseau": reseau,
+};

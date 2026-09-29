@@ -1,4 +1,4 @@
-import { PRODUCT_IMAGES, type ImageKey } from "@/lib/images";
+import { CATEGORY_COVERS, PRODUCT_IMAGES, type ImageKey } from "@/lib/images";
 
 export type Category = {
   slug: string;
@@ -340,5 +340,5 @@ const SEED: CategorySeed[] = [
 
 export const CATEGORIES: Category[] = SEED.map(({ imageKey, ...rest }) => ({
   ...rest,
-  image: PRODUCT_IMAGES[imageKey],
+  image: CATEGORY_COVERS[rest.parent ?? rest.slug] ?? PRODUCT_IMAGES[imageKey],
 }));

@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Check, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
-import { brandName, mainImage, type Product } from "@/lib/catalog";
+import { brandName, discountPercent, mainImage, type Product } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ export function ProductCard({ product, list = false }: { product: Product; list?
   const [added, setAdded] = useState(false);
   const price = product.price;
   const oldPrice = product.old_price;
+  const discount = discountPercent(product);
 
   const addToCart = () => {
     add({
@@ -54,9 +55,9 @@ export function ProductCard({ product, list = false }: { product: Product; list?
       </Link>
 
       <div className="absolute top-3 left-3 flex flex-col gap-1">
-        {oldPrice && (
+        {discount && (
           <span className="rise-in rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-primary-foreground">
-            Promo
+            -{discount} %
           </span>
         )}
         {product.is_new && (
