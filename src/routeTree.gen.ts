@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AProposRouteImport } from './routes/a-propos'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
@@ -32,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
 const AProposRoute = AProposRouteImport.update({
   id: '/a-propos',
   path: '/a-propos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CgvRoute = CgvRouteImport.update({
@@ -98,6 +104,7 @@ const ProduitSlugRoute = ProduitSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRoute
   '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRoute
   '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRoute
   '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/a-propos'
+    | '/admin'
     | '/cgv'
     | '/commande'
     | '/confidentialite'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/a-propos'
+    | '/admin'
     | '/cgv'
     | '/commande'
     | '/confidentialite'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/a-propos'
+    | '/admin'
     | '/cgv'
     | '/commande'
     | '/confidentialite'
@@ -198,6 +210,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AProposRoute: typeof AProposRoute
+  AdminRoute: typeof AdminRoute
   CgvRoute: typeof CgvRoute
   CommandeRoute: typeof CommandeRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
@@ -226,6 +239,13 @@ declare module '@tanstack/react-router' {
       path: '/a-propos'
       fullPath: '/a-propos'
       preLoaderRoute: typeof AProposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cgv': {
@@ -318,6 +338,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AProposRoute: AProposRoute,
+  AdminRoute: AdminRoute,
   CgvRoute: CgvRoute,
   CommandeRoute: CommandeRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
