@@ -10,13 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CommandeRouteImport } from './routes/commande'
+import { Route as DevisRouteImport } from './routes/devis'
 import { Route as PanierRouteImport } from './routes/panier'
 import { Route as CategorieSlugRouteImport } from './routes/categorie.$slug'
+import { Route as ConfirmationNumeroRouteImport } from './routes/confirmation.$numero'
 import { Route as ProduitSlugRouteImport } from './routes/produit.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandeRoute = CommandeRouteImport.update({
+  id: '/commande',
+  path: '/commande',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevisRoute = DevisRouteImport.update({
+  id: '/devis',
+  path: '/devis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PanierRoute = PanierRouteImport.update({
@@ -29,6 +42,11 @@ const CategorieSlugRoute = CategorieSlugRouteImport.update({
   path: '/categorie/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfirmationNumeroRoute = ConfirmationNumeroRouteImport.update({
+  id: '/confirmation/$numero',
+  path: '/confirmation/$numero',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProduitSlugRoute = ProduitSlugRouteImport.update({
   id: '/produit/$slug',
   path: '/produit/$slug',
@@ -37,35 +55,69 @@ const ProduitSlugRoute = ProduitSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRoute
+  '/devis': typeof DevisRoute
   '/panier': typeof PanierRoute
   '/categorie/$slug': typeof CategorieSlugRoute
+  '/confirmation/$numero': typeof ConfirmationNumeroRoute
   '/produit/$slug': typeof ProduitSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRoute
+  '/devis': typeof DevisRoute
   '/panier': typeof PanierRoute
   '/categorie/$slug': typeof CategorieSlugRoute
+  '/confirmation/$numero': typeof ConfirmationNumeroRoute
   '/produit/$slug': typeof ProduitSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRoute
+  '/devis': typeof DevisRoute
   '/panier': typeof PanierRoute
   '/categorie/$slug': typeof CategorieSlugRoute
+  '/confirmation/$numero': typeof ConfirmationNumeroRoute
   '/produit/$slug': typeof ProduitSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/panier' | '/categorie/$slug' | '/produit/$slug'
+  fullPaths:
+    | '/'
+    | '/commande'
+    | '/devis'
+    | '/panier'
+    | '/categorie/$slug'
+    | '/confirmation/$numero'
+    | '/produit/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/panier' | '/categorie/$slug' | '/produit/$slug'
-  id: '__root__' | '/' | '/panier' | '/categorie/$slug' | '/produit/$slug'
+  to:
+    | '/'
+    | '/commande'
+    | '/devis'
+    | '/panier'
+    | '/categorie/$slug'
+    | '/confirmation/$numero'
+    | '/produit/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/commande'
+    | '/devis'
+    | '/panier'
+    | '/categorie/$slug'
+    | '/confirmation/$numero'
+    | '/produit/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommandeRoute: typeof CommandeRoute
+  DevisRoute: typeof DevisRoute
   PanierRoute: typeof PanierRoute
   CategorieSlugRoute: typeof CategorieSlugRoute
+  ConfirmationNumeroRoute: typeof ConfirmationNumeroRoute
   ProduitSlugRoute: typeof ProduitSlugRoute
 }
 
@@ -76,6 +128,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commande': {
+      id: '/commande'
+      path: '/commande'
+      fullPath: '/commande'
+      preLoaderRoute: typeof CommandeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/devis': {
+      id: '/devis'
+      path: '/devis'
+      fullPath: '/devis'
+      preLoaderRoute: typeof DevisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/panier': {
@@ -92,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategorieSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/confirmation/$numero': {
+      id: '/confirmation/$numero'
+      path: '/confirmation/$numero'
+      fullPath: '/confirmation/$numero'
+      preLoaderRoute: typeof ConfirmationNumeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produit/$slug': {
       id: '/produit/$slug'
       path: '/produit/$slug'
@@ -104,8 +177,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommandeRoute: CommandeRoute,
+  DevisRoute: DevisRoute,
   PanierRoute: PanierRoute,
   CategorieSlugRoute: CategorieSlugRoute,
+  ConfirmationNumeroRoute: ConfirmationNumeroRoute,
   ProduitSlugRoute: ProduitSlugRoute,
 }
 export const routeTree = rootRouteImport
