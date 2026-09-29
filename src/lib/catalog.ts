@@ -132,11 +132,11 @@ export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 ];
 
 export type ProductFilters = {
-  categories?: string[];
-  brands?: string[];
-  minPrice?: number;
-  maxPrice?: number;
-  inStock?: boolean;
+  categories?: string[] | undefined;
+  brands?: string[] | undefined;
+  minPrice?: number | undefined;
+  maxPrice?: number | undefined;
+  inStock?: boolean | undefined;
 };
 
 /** Price filters never exclude "Sur devis" products (price `null`). */
