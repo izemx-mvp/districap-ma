@@ -20,7 +20,7 @@ export function Reveal({
     if (!node) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry?.isIntersecting) {
           setVisible(true);
           observer.disconnect();
         }
@@ -51,7 +51,7 @@ export function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
     const node = ref.current;
     if (!node) return;
     const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
+      if (!entry?.isIntersecting) return;
       observer.disconnect();
       const start = performance.now();
       const step = (now: number) => {

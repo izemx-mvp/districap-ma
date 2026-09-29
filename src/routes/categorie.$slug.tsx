@@ -153,7 +153,7 @@ function CategoryPage() {
             max={100000}
             step={200}
             onValueChange={([v]) => {
-              setMaxPrice(v);
+              setMaxPrice(v ?? 100000);
               setPage(1);
             }}
           />
