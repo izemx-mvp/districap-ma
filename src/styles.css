@@ -336,6 +336,85 @@
   animation: draw-check 700ms var(--ease-entrance) forwards;
 }
 
+/* --- Navigation ------------------------------------------------------ */
+
+@utility mega-panel {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition:
+    opacity 220ms var(--ease-entrance),
+    transform 220ms var(--ease-entrance),
+    visibility 0s linear 220ms;
+
+  &[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+}
+
+@utility mega-column {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 260ms var(--ease-entrance),
+    transform 260ms var(--ease-entrance);
+
+  [data-open="true"] & {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Height animation for accordions: wrap content in a single overflow-hidden child. */
+@utility collapse-rows {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 300ms var(--ease-entrance),
+    opacity 300ms var(--ease-entrance);
+
+  &[data-open="true"] {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility dropdown-in {
+  animation: dropdown-in 180ms var(--ease-entrance) both;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility overlay-in {
+  animation: overlay-in 240ms var(--ease-entrance) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
