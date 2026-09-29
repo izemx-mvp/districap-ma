@@ -257,7 +257,19 @@ export function SiteHeader() {
                 )}
               </li>
             ))}
+            <li className="ml-auto flex items-center gap-6">
+              <Link to="/services" className="nav-underline py-2">
+                Services
+              </Link>
+              <Link to="/a-propos" className="nav-underline py-2">
+                À propos
+              </Link>
+              <Link to="/contact" className="nav-underline py-2">
+                Contact
+              </Link>
+            </li>
           </ul>
+
         </nav>
       </div>
 
@@ -307,6 +319,17 @@ export function SiteHeader() {
                 </div>
               </div>
             ))}
+            <div className="flex flex-col gap-2 border-t border-border pt-4 text-sm">
+              <Link to="/services" onClick={() => setMobileOpen(false)}>
+                Services
+              </Link>
+              <Link to="/a-propos" onClick={() => setMobileOpen(false)}>
+                À propos
+              </Link>
+              <Link to="/contact" onClick={() => setMobileOpen(false)}>
+                Contact
+              </Link>
+            </div>
             <Button asChild className="w-full">
               <Link to="/devis" onClick={() => setMobileOpen(false)}>
                 Demander un devis
@@ -315,6 +338,7 @@ export function SiteHeader() {
           </div>
         </SheetContent>
       </Sheet>
+
 
       {/* Mini-panier */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>

@@ -11,10 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AProposRouteImport } from './routes/a-propos'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as CommandeRouteImport } from './routes/commande'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DevisRouteImport } from './routes/devis'
 import { Route as PanierRouteImport } from './routes/panier'
+import { Route as PlanDuSiteRouteImport } from './routes/plan-du-site'
 import { Route as RechercheRouteImport } from './routes/recherche'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as CategorieSlugRouteImport } from './routes/categorie.$slug'
@@ -31,9 +35,24 @@ const AProposRoute = AProposRouteImport.update({
   path: '/a-propos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CgvRoute = CgvRouteImport.update({
+  id: '/cgv',
+  path: '/cgv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CommandeRoute = CommandeRouteImport.update({
   id: '/commande',
   path: '/commande',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -49,6 +68,11 @@ const DevisRoute = DevisRouteImport.update({
 const PanierRoute = PanierRouteImport.update({
   id: '/panier',
   path: '/panier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanDuSiteRoute = PlanDuSiteRouteImport.update({
+  id: '/plan-du-site',
+  path: '/plan-du-site',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RechercheRoute = RechercheRouteImport.update({
@@ -80,10 +104,14 @@ const ProduitSlugRoute = ProduitSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRoute
+  '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
   '/panier': typeof PanierRoute
+  '/plan-du-site': typeof PlanDuSiteRoute
   '/recherche': typeof RechercheRoute
   '/services': typeof ServicesRoute
   '/categorie/$slug': typeof CategorieSlugRoute
@@ -93,10 +121,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRoute
+  '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
   '/panier': typeof PanierRoute
+  '/plan-du-site': typeof PlanDuSiteRoute
   '/recherche': typeof RechercheRoute
   '/services': typeof ServicesRoute
   '/categorie/$slug': typeof CategorieSlugRoute
@@ -107,10 +139,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/a-propos': typeof AProposRoute
+  '/admin': typeof AdminRoute
+  '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
   '/panier': typeof PanierRoute
+  '/plan-du-site': typeof PlanDuSiteRoute
   '/recherche': typeof RechercheRoute
   '/services': typeof ServicesRoute
   '/categorie/$slug': typeof CategorieSlugRoute
@@ -122,10 +158,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/a-propos'
+    | '/admin'
+    | '/cgv'
     | '/commande'
+    | '/confidentialite'
     | '/contact'
     | '/devis'
     | '/panier'
+    | '/plan-du-site'
     | '/recherche'
     | '/services'
     | '/categorie/$slug'
@@ -135,10 +175,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/a-propos'
+    | '/admin'
+    | '/cgv'
     | '/commande'
+    | '/confidentialite'
     | '/contact'
     | '/devis'
     | '/panier'
+    | '/plan-du-site'
     | '/recherche'
     | '/services'
     | '/categorie/$slug'
@@ -148,10 +192,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/a-propos'
+    | '/admin'
+    | '/cgv'
     | '/commande'
+    | '/confidentialite'
     | '/contact'
     | '/devis'
     | '/panier'
+    | '/plan-du-site'
     | '/recherche'
     | '/services'
     | '/categorie/$slug'
@@ -162,10 +210,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AProposRoute: typeof AProposRoute
+  AdminRoute: typeof AdminRoute
+  CgvRoute: typeof CgvRoute
   CommandeRoute: typeof CommandeRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   ContactRoute: typeof ContactRoute
   DevisRoute: typeof DevisRoute
   PanierRoute: typeof PanierRoute
+  PlanDuSiteRoute: typeof PlanDuSiteRoute
   RechercheRoute: typeof RechercheRoute
   ServicesRoute: typeof ServicesRoute
   CategorieSlugRoute: typeof CategorieSlugRoute
@@ -189,11 +241,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AProposRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cgv': {
+      id: '/cgv'
+      path: '/cgv'
+      fullPath: '/cgv'
+      preLoaderRoute: typeof CgvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/commande': {
       id: '/commande'
       path: '/commande'
       fullPath: '/commande'
       preLoaderRoute: typeof CommandeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -215,6 +288,13 @@ declare module '@tanstack/react-router' {
       path: '/panier'
       fullPath: '/panier'
       preLoaderRoute: typeof PanierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan-du-site': {
+      id: '/plan-du-site'
+      path: '/plan-du-site'
+      fullPath: '/plan-du-site'
+      preLoaderRoute: typeof PlanDuSiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recherche': {
@@ -258,10 +338,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AProposRoute: AProposRoute,
+  AdminRoute: AdminRoute,
+  CgvRoute: CgvRoute,
   CommandeRoute: CommandeRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   ContactRoute: ContactRoute,
   DevisRoute: DevisRoute,
   PanierRoute: PanierRoute,
+  PlanDuSiteRoute: PlanDuSiteRoute,
   RechercheRoute: RechercheRoute,
   ServicesRoute: ServicesRoute,
   CategorieSlugRoute: CategorieSlugRoute,

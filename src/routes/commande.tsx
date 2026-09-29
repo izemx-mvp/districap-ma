@@ -87,23 +87,21 @@ function CheckoutPage() {
     setBusy(true);
 
     const orderNumber = `DC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    const { data, error } = await supabase
-      .from("orders")
-      .insert({
-        order_number: orderNumber,
-        full_name: fields.full_name,
-        company: fields.company || null,
-        phone: fields.phone,
-        email: fields.email,
-        city: fields.city,
-        address: fields.address,
-        notes: fields.notes || null,
-        total: subtotal,
-      })
-      .select("id")
-      .single();
+    const orderId = crypto.randomUUID();
+    const { error } = await supabase.from("orders").insert({
+      id: orderId,
+      order_number: orderNumber,
+      full_name: fields.full_name,
+      company: fields.company || null,
+      phone: fields.phone,
+      email: fields.email,
+      city: fields.city,
+      address: fields.address,
+      notes: fields.notes || null,
+      total: subtotal,
+    });
 
-    if (error || !data) {
+    if (error) {
       setBusy(false);
       toast.error("La commande n'a pas pu être enregistrée. Réessayez.");
       return;
@@ -111,7 +109,7 @@ function CheckoutPage() {
 
     const { error: itemsError } = await supabase.from("order_items").insert(
       lines.map((line) => ({
-        order_id: data.id,
+        order_id: orderId,
         product_slug: line.slug,
         product_name: line.name,
         sku: line.sku,
@@ -119,6 +117,7 @@ function CheckoutPage() {
         quantity: line.quantity,
       })),
     );
+
 
     setBusy(false);
     if (itemsError) {

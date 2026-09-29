@@ -31,6 +31,10 @@ export const Route = createFileRoute("/devis")({
   component: QuotePage,
 });
 
+type FieldErrors = Partial<
+  Record<"full_name" | "email" | "phone" | "project_type" | "description", string>
+>;
+
 function QuotePage() {
   const [fields, setFields] = useState({
     full_name: "",
@@ -44,7 +48,7 @@ function QuotePage() {
   });
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -53,7 +57,7 @@ function QuotePage() {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const next: Record<string, string> = {};
+    const next: FieldErrors = {};
     if (!fields.full_name.trim()) next.full_name = "Indiquez votre nom.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) next.email = "E-mail invalide.";
     if (!isValidMoroccanPhone(fields.phone)) next.phone = "Numéro marocain invalide.";

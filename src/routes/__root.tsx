@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -132,7 +132,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const isLoading = useRouterState({ select: (s) => s.status === "pending" });
+  const routerPending = useRouterState({ select: (s) => s.status === "pending" });
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const isLoading = hydrated && routerPending;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -142,6 +145,7 @@ function RootComponent() {
           className="fixed inset-x-0 top-0 z-[60] h-0.5 bg-primary transition-opacity duration-300"
           style={{ opacity: isLoading ? 1 : 0 }}
         />
+
         <SiteHeader />
         <main className="min-h-[60vh]">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
