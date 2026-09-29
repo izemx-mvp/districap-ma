@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
-import { productImage } from "@/lib/images";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/panier")({
@@ -55,7 +54,7 @@ function CartPage() {
           {lines.map((line) => (
             <div key={line.slug} className="card-surface rise-in flex gap-4 p-4">
               <img
-                src={productImage(line.imageKey)}
+                src={line.image}
                 alt=""
                 loading="lazy"
                 className="size-24 rounded-md border border-border object-contain"

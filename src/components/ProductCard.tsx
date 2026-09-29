@@ -2,9 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Check, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
-import type { Product } from "@/lib/catalog";
+import { brandName, mainImage, type Product } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
-import { productImage } from "@/lib/images";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,8 +11,8 @@ import { cn } from "@/lib/utils";
 export function ProductCard({ product, list = false }: { product: Product; list?: boolean }) {
   const { add, setDrawerOpen } = useCart();
   const [added, setAdded] = useState(false);
-  const price = product.price === null ? null : Number(product.price);
-  const oldPrice = product.old_price === null ? null : Number(product.old_price);
+  const price = product.price;
+  const oldPrice = product.old_price;
 
   const addToCart = () => {
     add({
@@ -21,7 +20,7 @@ export function ProductCard({ product, list = false }: { product: Product; list?
       name: product.name,
       sku: product.sku,
       price,
-      imageKey: product.image_key,
+      image: mainImage(product),
     });
     setAdded(true);
     toast.success("Produit ajouté au panier", { description: product.name });
@@ -47,7 +46,7 @@ export function ProductCard({ product, list = false }: { product: Product; list?
         )}
       >
         <img
-          src={productImage(product.image_key)}
+          src={mainImage(product)}
           alt={product.name}
           loading="lazy"
           className="size-full object-contain p-4 transition-transform duration-250 group-hover:scale-105"
@@ -69,7 +68,7 @@ export function ProductCard({ product, list = false }: { product: Product; list?
 
       <div className={cn("flex flex-1 flex-col p-4", list && "p-0")}>
         <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          {product.brand_slug}
+          {brandName(product.brand)}
         </p>
         <h3 className="mt-1 line-clamp-2 text-sm leading-snug font-semibold">
           <Link to="/produit/$slug" params={{ slug: product.slug }}>

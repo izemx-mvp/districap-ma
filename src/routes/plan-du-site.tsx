@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { categoriesQuery } from "@/lib/catalog";
+import { getParentCategories, getSubCategories } from "@/lib/catalog";
 
 export const Route = createFileRoute("/plan-du-site")({
   head: () => ({
@@ -32,8 +31,7 @@ const PAGES = [
 ] as const;
 
 function SitemapPage() {
-  const { data: categories = [] } = useQuery(categoriesQuery);
-  const parents = categories.filter((c) => !c.parent_slug);
+  const parents = getParentCategories();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
@@ -61,19 +59,17 @@ function SitemapPage() {
               </Link>
             </h2>
             <ul className="mt-2 space-y-1">
-              {categories
-                .filter((c) => c.parent_slug === parent.slug)
-                .map((child) => (
-                  <li key={child.slug}>
-                    <Link
-                      to="/categorie/$slug"
-                      params={{ slug: child.slug }}
-                      className="text-sm text-muted-foreground hover:text-primary"
-                    >
-                      {child.name}
-                    </Link>
-                  </li>
-                ))}
+              {getSubCategories(parent.slug).map((child) => (
+                <li key={child.slug}>
+                  <Link
+                    to="/categorie/$slug"
+                    params={{ slug: child.slug }}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    {child.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         ))}

@@ -1,10 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/lib/cart";
 import { formatPrice, isValidMoroccanPhone } from "@/lib/format";
+import { generateOrderNumber, saveOrder, type OrderCustomer } from "@/lib/order";
 import { MOROCCAN_CITIES } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,15 +30,7 @@ export const Route = createFileRoute("/commande")({
   component: CheckoutPage,
 });
 
-type Fields = {
-  full_name: string;
-  company: string;
-  phone: string;
-  email: string;
-  city: string;
-  address: string;
-  notes: string;
-};
+type Fields = OrderCustomer;
 
 const EMPTY: Fields = {
   full_name: "",
@@ -57,7 +47,6 @@ function CheckoutPage() {
   const { lines, subtotal, clear } = useCart();
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof Fields, string>>>({});
-  const [busy, setBusy] = useState(false);
 
   const required: (keyof Fields)[] = ["full_name", "phone", "email", "city", "address"];
   const progress = useMemo(
@@ -65,66 +54,32 @@ function CheckoutPage() {
     [fields],
   );
 
-  const set = (key: keyof Fields) => (value: string) =>
-    setFields((f) => ({ ...f, [key]: value }));
+  const set = (key: keyof Fields) => (value: string) => setFields((f) => ({ ...f, [key]: value }));
 
   const validate = () => {
     const next: Partial<Record<keyof Fields, string>> = {};
     if (!fields.full_name.trim()) next.full_name = "Merci d'indiquer votre nom complet.";
     if (!isValidMoroccanPhone(fields.phone))
       next.phone = "Numéro marocain invalide (ex. 06 12 34 56 78).";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email))
-      next.email = "Adresse e-mail invalide.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) next.email = "Adresse e-mail invalide.";
     if (!fields.city) next.city = "Choisissez votre ville.";
     if (fields.address.trim().length < 10) next.address = "Adresse trop courte.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
 
-  const submit = async (event: React.FormEvent) => {
+  const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!validate()) return;
-    setBusy(true);
 
-    const orderNumber = `DC-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-    const orderId = crypto.randomUUID();
-    const { error } = await supabase.from("orders").insert({
-      id: orderId,
-      order_number: orderNumber,
-      full_name: fields.full_name,
-      company: fields.company || null,
-      phone: fields.phone,
-      email: fields.email,
-      city: fields.city,
-      address: fields.address,
-      notes: fields.notes || null,
+    const orderNumber = generateOrderNumber();
+    saveOrder({
+      number: orderNumber,
+      createdAt: new Date().toISOString(),
+      customer: fields,
+      lines,
       total: subtotal,
     });
-
-    if (error) {
-      setBusy(false);
-      toast.error("La commande n'a pas pu être enregistrée. Réessayez.");
-      return;
-    }
-
-    const { error: itemsError } = await supabase.from("order_items").insert(
-      lines.map((line) => ({
-        order_id: orderId,
-        product_slug: line.slug,
-        product_name: line.name,
-        sku: line.sku,
-        unit_price: line.price,
-        quantity: line.quantity,
-      })),
-    );
-
-
-    setBusy(false);
-    if (itemsError) {
-      toast.error("Les articles n'ont pas pu être enregistrés. Contactez-nous.");
-      return;
-    }
-
     clear();
     navigate({ to: "/confirmation/$numero", params: { numero: orderNumber } });
   };
@@ -133,9 +88,7 @@ function CheckoutPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-24 text-center">
         <h1 className="text-2xl">Votre panier est vide</h1>
-        <p className="mt-2 text-muted-foreground">
-          Ajoutez des produits avant de passer commande.
-        </p>
+        <p className="mt-2 text-muted-foreground">Ajoutez des produits avant de passer commande.</p>
         <Button asChild className="mt-6">
           <Link to="/">Retour à l'accueil</Link>
         </Button>
@@ -143,12 +96,7 @@ function CheckoutPage() {
     );
   }
 
-  const field = (
-    key: keyof Fields,
-    label: string,
-    type = "text",
-    optional = false,
-  ) => (
+  const field = (key: keyof Fields, label: string, type = "text", optional = false) => (
     <div>
       <label className="text-sm font-medium" htmlFor={key}>
         {label}
@@ -220,9 +168,7 @@ function CheckoutPage() {
               className={cn("mt-1", errors.address && "border-primary")}
               rows={3}
             />
-            {errors.address && (
-              <p className="mt-1 text-xs text-primary">{errors.address}</p>
-            )}
+            {errors.address && <p className="mt-1 text-xs text-primary">{errors.address}</p>}
           </div>
 
           <div>
@@ -245,14 +191,8 @@ function CheckoutPage() {
             </p>
           </div>
 
-          <Button type="submit" size="lg" className="press w-full" disabled={busy}>
-            {busy ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> Envoi de la commande…
-              </>
-            ) : (
-              "Valider ma commande"
-            )}
+          <Button type="submit" size="lg" className="press w-full">
+            Valider ma commande
           </Button>
         </form>
 

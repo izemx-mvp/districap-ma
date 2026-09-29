@@ -1,17 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { SearchX } from "lucide-react";
-import { productsQuery } from "@/lib/catalog";
-import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
+import { searchProducts } from "@/lib/catalog";
+import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 
 export const Route = createFileRoute("/recherche")({
   validateSearch: (search: Record<string, unknown>) => ({
     q: typeof search["q"] === "string" ? (search["q"] as string) : "",
   }),
-  head: () => ({
+  head: ({ match }) => ({
     meta: [
-      { title: "Résultats de recherche – DISTRICAP" },
+      {
+        title: match.search.q
+          ? `Recherche « ${match.search.q} » – DISTRICAP`
+          : "Résultats de recherche – DISTRICAP",
+      },
+      { name: "robots", content: "noindex" },
       {
         name: "description",
         content:
@@ -31,16 +35,7 @@ export const Route = createFileRoute("/recherche")({
 
 function SearchPage() {
   const { q } = Route.useSearch();
-  const { data: products = [], isLoading } = useQuery(productsQuery);
-  const term = q.trim().toLowerCase();
-
-  const results = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(term) ||
-      (p.short_description ?? "").toLowerCase().includes(term) ||
-      (p.brand_slug ?? "").includes(term) ||
-      p.sku.toLowerCase().includes(term),
-  );
+  const results = searchProducts(q);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
@@ -51,22 +46,20 @@ function SearchPage() {
       </p>
 
       <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {isLoading
-          ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-          : results.map((p, i) => (
-              <Reveal key={p.id} delay={i * 40}>
-                <ProductCard product={p} />
-              </Reveal>
-            ))}
+        {results.map((p, i) => (
+          <Reveal key={p.slug} delay={i * 40}>
+            <ProductCard product={p} />
+          </Reveal>
+        ))}
       </div>
 
-      {!isLoading && results.length === 0 && (
+      {results.length === 0 && (
         <div className="card-surface mt-8 p-12 text-center">
           <SearchX className="float-soft mx-auto size-10 text-muted-foreground" />
           <p className="mt-4 font-semibold">Aucun produit ne correspond à votre recherche</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Essayez un autre mot-clé ou contactez-nous : nous pouvons commander la
-            référence pour vous.
+            Essayez un autre mot-clé ou contactez-nous : nous pouvons commander la référence pour
+            vous.
           </p>
         </div>
       )}

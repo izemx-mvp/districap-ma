@@ -1,16 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import {
-  ArrowRight,
-  BadgeCheck,
-  Banknote,
-  Headset,
-  Truck,
-} from "lucide-react";
+import { ArrowRight, BadgeCheck, Banknote, Headset, Truck } from "lucide-react";
 import { AMBIANCE } from "@/lib/images";
-import { brandsQuery, categoriesQuery, productsQuery } from "@/lib/catalog";
-import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
+import { getBrands, getParentCategories, newProducts, promoProducts } from "@/lib/catalog";
+import { ProductCard } from "@/components/ProductCard";
 import { CountUp, Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -184,13 +177,10 @@ function HeroSlider() {
 }
 
 function Home() {
-  const { data: categories = [] } = useQuery(categoriesQuery);
-  const { data: products = [], isLoading } = useQuery(productsQuery);
-  const { data: brands = [] } = useQuery(brandsQuery);
-
-  const parents = categories.filter((c) => !c.parent_slug);
-  const promos = products.filter((p) => p.old_price !== null).slice(0, 8);
-  const nouveautes = products.filter((p) => p.is_new).slice(0, 4);
+  const parents = getParentCategories();
+  const brands = getBrands();
+  const promos = promoProducts().slice(0, 8);
+  const nouveautes = newProducts().slice(0, 4);
 
   return (
     <>
@@ -224,8 +214,8 @@ function Home() {
         <Reveal>
           <h2 className="text-3xl">Nos univers produits</h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Huit familles de produits pour équiper vos bâtiments, de la caméra IP à la
-            salle de conférence.
+            Huit familles de produits pour équiper vos bâtiments, de la caméra IP à la salle de
+            conférence.
           </p>
         </Reveal>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -237,13 +227,7 @@ function Home() {
                 className="group relative block h-44 overflow-hidden rounded-xl"
               >
                 <img
-                  src={
-                    cat.image_key === "sono" || cat.image_key === "av"
-                      ? AMBIANCE.sonorisation
-                      : cat.image_key === "incendie" || cat.image_key === "alarme"
-                        ? AMBIANCE.securite
-                        : AMBIANCE.videosurveillance
-                  }
+                  src={cat.image}
                   alt=""
                   loading="lazy"
                   className="size-full object-cover transition-transform duration-250 group-hover:scale-105"
@@ -265,23 +249,16 @@ function Home() {
             <div>
               <h2 className="text-3xl">Produits en promotion</h2>
               <p className="mt-2 text-muted-foreground">
-                Des références sélectionnées à prix réduit, dans la limite des stocks
-                disponibles.
+                Des références sélectionnées à prix réduit, dans la limite des stocks disponibles.
               </p>
             </div>
           </Reveal>
           <div className="mt-8 flex snap-x gap-5 overflow-x-auto pb-4">
-            {isLoading
-              ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="w-64 shrink-0 snap-start">
-                    <ProductCardSkeleton />
-                  </div>
-                ))
-              : promos.map((p, i) => (
-                  <Reveal key={p.id} delay={i * 70} className="w-64 shrink-0 snap-start">
-                    <ProductCard product={p} />
-                  </Reveal>
-                ))}
+            {promos.map((p, i) => (
+              <Reveal key={p.slug} delay={i * 70} className="w-64 shrink-0 snap-start">
+                <ProductCard product={p} />
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -294,13 +271,11 @@ function Home() {
           </p>
         </Reveal>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-            : nouveautes.map((p, i) => (
-                <Reveal key={p.id} delay={i * 70}>
-                  <ProductCard product={p} />
-                </Reveal>
-              ))}
+          {nouveautes.map((p, i) => (
+            <Reveal key={p.slug} delay={i * 70}>
+              <ProductCard product={p} />
+            </Reveal>
+          ))}
         </div>
       </section>
 
@@ -313,7 +288,7 @@ function Home() {
         <div className="mt-8 flex w-max marquee-track gap-14 px-6">
           {[...brands, ...brands].map((brand, i) => (
             <span
-              key={`${brand.id}-${i}`}
+              key={`${brand.slug}-${i}`}
               className="text-xl font-bold tracking-wide text-muted-foreground/60 transition-colors duration-250 hover:text-primary"
             >
               {brand.name}
@@ -358,12 +333,10 @@ function Home() {
 
       <section className="mx-auto max-w-7xl px-4 pb-20">
         <Reveal className="ink-panel overflow-hidden rounded-2xl px-6 py-12 text-center md:px-16">
-          <h2 className="text-3xl text-ink-foreground">
-            Un projet ? Demandez un devis gratuit
-          </h2>
+          <h2 className="text-3xl text-ink-foreground">Un projet ? Demandez un devis gratuit</h2>
           <p className="mx-auto mt-3 max-w-2xl opacity-85">
-            Décrivez votre besoin : nos ingénieurs vous répondent sous 24 heures ouvrées
-            avec une proposition chiffrée et adaptée à votre site.
+            Décrivez votre besoin : nos ingénieurs vous répondent sous 24 heures ouvrées avec une
+            proposition chiffrée et adaptée à votre site.
           </p>
           <Button asChild size="lg" className="press group mt-8">
             <Link to="/devis">

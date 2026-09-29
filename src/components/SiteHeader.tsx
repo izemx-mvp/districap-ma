@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
@@ -12,12 +11,11 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import logo from "@/assets/logo-districap.png.asset.json";
+import logo from "@/assets/logo_districap.png";
 import { SITE, whatsappLink } from "@/lib/site";
-import { categoriesQuery, productsQuery } from "@/lib/catalog";
+import { getParentCategories, mainImage, getSubCategories, searchProducts } from "@/lib/catalog";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
-import { productImage } from "@/lib/images";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -33,8 +31,6 @@ function WhatsAppGlyph({ className }: { className?: string }) {
 
 export function SiteHeader() {
   const navigate = useNavigate();
-  const { data: categories = [] } = useQuery(categoriesQuery);
-  const { data: products = [] } = useQuery(productsQuery);
   const { count, lines, subtotal, remove, drawerOpen, setDrawerOpen } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -61,21 +57,13 @@ export function SiteHeader() {
     return () => clearTimeout(t);
   }, [count]);
 
-  const parents = useMemo(() => categories.filter((c) => !c.parent_slug), [categories]);
-  const childrenOf = (slug: string) => categories.filter((c) => c.parent_slug === slug);
+  const parents = getParentCategories();
+  const childrenOf = getSubCategories;
 
-  const suggestions = useMemo(() => {
-    const q = term.trim().toLowerCase();
-    if (q.length < 2) return [];
-    return products
-      .filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          (p.brand_slug ?? "").includes(q) ||
-          p.sku.toLowerCase().includes(q),
-      )
-      .slice(0, 6);
-  }, [term, products]);
+  const suggestions = useMemo(
+    () => (term.trim().length < 2 ? [] : searchProducts(term).slice(0, 6)),
+    [term],
+  );
 
   const submitSearch = (event: React.FormEvent) => {
     event.preventDefault();
@@ -132,7 +120,7 @@ export function SiteHeader() {
             </button>
             <Link to="/" className="block shrink-0">
               <img
-                src={logo.url}
+                src={logo}
                 alt="DISTRICAP – Communication & Sécurité"
                 className={cn(
                   "w-[150px] origin-left transition-transform duration-300 md:w-[190px]",
@@ -156,11 +144,7 @@ export function SiteHeader() {
             {focused && suggestions.length > 0 && (
               <ul className="card-surface absolute top-full z-50 mt-2 w-full overflow-hidden p-1">
                 {suggestions.map((p, i) => (
-                  <li
-                    key={p.id}
-                    className="rise-in"
-                    style={{ animationDelay: `${i * 40}ms` }}
-                  >
+                  <li key={p.slug} className="rise-in" style={{ animationDelay: `${i * 40}ms` }}>
                     <Link
                       to="/produit/$slug"
                       params={{ slug: p.slug }}
@@ -168,7 +152,7 @@ export function SiteHeader() {
                       className="flex items-center gap-3 rounded-md p-2 transition-colors hover:bg-muted"
                     >
                       <img
-                        src={productImage(p.image_key)}
+                        src={mainImage(p)}
                         alt=""
                         loading="lazy"
                         className="size-10 rounded object-contain"
@@ -226,11 +210,7 @@ export function SiteHeader() {
         >
           <ul className="flex flex-wrap items-center gap-6 pb-2 text-sm font-medium">
             {parents.map((cat) => (
-              <li
-                key={cat.slug}
-                className="relative"
-                onMouseEnter={() => setOpenMenu(cat.slug)}
-              >
+              <li key={cat.slug} className="relative" onMouseEnter={() => setOpenMenu(cat.slug)}>
                 <Link
                   to="/categorie/$slug"
                   params={{ slug: cat.slug }}
@@ -269,7 +249,6 @@ export function SiteHeader() {
               </Link>
             </li>
           </ul>
-
         </nav>
       </div>
 
@@ -291,11 +270,7 @@ export function SiteHeader() {
               />
             </form>
             {parents.map((cat, i) => (
-              <div
-                key={cat.slug}
-                className="rise-in"
-                style={{ animationDelay: `${i * 50}ms` }}
-              >
+              <div key={cat.slug} className="rise-in" style={{ animationDelay: `${i * 50}ms` }}>
                 <Link
                   to="/categorie/$slug"
                   params={{ slug: cat.slug }}
@@ -339,7 +314,6 @@ export function SiteHeader() {
         </SheetContent>
       </Sheet>
 
-
       {/* Mini-panier */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
         <SheetContent side="right" className="flex w-[92vw] max-w-md flex-col">
@@ -358,7 +332,7 @@ export function SiteHeader() {
             {lines.map((line) => (
               <div key={line.slug} className="rise-in flex gap-3 border-b border-border pb-3">
                 <img
-                  src={productImage(line.imageKey)}
+                  src={line.image}
                   alt=""
                   loading="lazy"
                   className="size-16 rounded-md border border-border object-contain"
@@ -366,9 +340,7 @@ export function SiteHeader() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{line.name}</p>
                   <p className="text-xs text-muted-foreground">Qté {line.quantity}</p>
-                  <p className="text-sm font-semibold text-primary">
-                    {formatPrice(line.price)}
-                  </p>
+                  <p className="text-sm font-semibold text-primary">{formatPrice(line.price)}</p>
                 </div>
                 <button
                   type="button"
@@ -391,11 +363,7 @@ export function SiteHeader() {
                 Voir le panier
               </Link>
             </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setDrawerOpen(false)}
-            >
+            <Button variant="outline" className="w-full" onClick={() => setDrawerOpen(false)}>
               <X className="size-4" /> Continuer mes achats
             </Button>
           </div>

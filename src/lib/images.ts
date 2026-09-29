@@ -9,7 +9,7 @@ import heroVideo from "@/assets/hero-videosurveillance.jpg";
 import heroSono from "@/assets/hero-sonorisation.jpg";
 import heroSecurite from "@/assets/hero-securite.jpg";
 
-const MAP: Record<string, string> = {
+export const PRODUCT_IMAGES = {
   camera,
   alarme,
   incendie,
@@ -19,9 +19,9 @@ const MAP: Record<string, string> = {
   reseau,
 };
 
-export function productImage(key: string | null | undefined) {
-  return (key && MAP[key]) || camera;
-}
+export type ImageKey = keyof typeof PRODUCT_IMAGES;
+
+export const FALLBACK_IMAGE = camera;
 
 export const AMBIANCE = {
   videosurveillance: heroVideo,

@@ -7,13 +7,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { getProduct } from "@/lib/catalog";
+import { FALLBACK_IMAGE } from "@/lib/images";
 
 export type CartLine = {
   slug: string;
   name: string;
   sku: string;
   price: number | null;
-  imageKey: string | null;
+  /** Resolved image URL. */
+  image: string;
   quantity: number;
 };
 
@@ -32,6 +35,12 @@ type CartContextValue = {
 const STORAGE_KEY = "districap.cart.v1";
 const CartContext = createContext<CartContextValue | null>(null);
 
+/** Carts saved before the static catalog stored an `imageKey` instead of an URL. */
+function withImage(line: CartLine): CartLine {
+  if (line.image) return line;
+  return { ...line, image: getProduct(line.slug)?.images[0] ?? FALLBACK_IMAGE };
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -40,7 +49,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setLines(JSON.parse(raw) as CartLine[]);
+      if (raw) setLines((JSON.parse(raw) as CartLine[]).map(withImage));
     } catch {
       /* panier illisible : on repart d'un panier vide */
     }

@@ -1,14 +1,19 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
 import {
-  brandsQuery,
-  categoriesQuery,
-  categoryTreeSlugs,
-  productsQuery,
+  brandsInList,
+  categoryName,
+  filterProducts,
+  getCategory,
+  getParentCategory,
+  getSubCategories,
+  paginate,
+  productsByCategory,
+  sortProducts,
+  type SortKey,
 } from "@/lib/catalog";
-import { ProductCard, ProductCardSkeleton } from "@/components/ProductCard";
+import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,20 +29,22 @@ import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/categorie/$slug")({
-  head: ({ params }) => {
-    const label = params.slug.replace(/-/g, " ");
+  loader: ({ params }) => {
+    const category = getCategory(params.slug);
+    if (!category) throw notFound();
+    return { category };
+  },
+  head: ({ loaderData }) => {
+    const name = loaderData?.category.name ?? "Catégorie";
+    const description =
+      loaderData?.category.intro ??
+      `Découvrez notre sélection ${name} : matériel professionnel disponible au Maroc, livraison partout et paiement à la livraison.`;
     return {
       meta: [
-        { title: `${label} – DISTRICAP` },
-        {
-          name: "description",
-          content: `Découvrez notre sélection ${label} : matériel professionnel disponible au Maroc, livraison partout et paiement à la livraison.`,
-        },
-        { property: "og:title", content: `${label} – DISTRICAP` },
-        {
-          property: "og:description",
-          content: `Matériel professionnel ${label} distribué par DISTRICAP à Casablanca.`,
-        },
+        { title: `${name} – DISTRICAP` },
+        { name: "description", content: description },
+        { property: "og:title", content: `${name} – DISTRICAP` },
+        { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
@@ -49,51 +56,42 @@ export const Route = createFileRoute("/categorie/$slug")({
 const PAGE_SIZE = 9;
 
 function CategoryPage() {
-  const { slug } = Route.useParams();
-  const { data: categories = [] } = useQuery(categoriesQuery);
-  const { data: brands = [] } = useQuery(brandsQuery);
-  const { data: products = [], isLoading } = useQuery(productsQuery);
+  const { category } = Route.useLoaderData();
+  const slug = category.slug;
 
   const [selectedSubs, setSelectedSubs] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState(100000);
   const [onlyStock, setOnlyStock] = useState(false);
-  const [sort, setSort] = useState("pertinence");
+  const [sort, setSort] = useState<SortKey>("pertinence");
   const [view, setView] = useState<"grid" | "list">("grid");
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const category = categories.find((c) => c.slug === slug);
-  if (categories.length > 0 && !category) throw notFound();
+  const parent = getParentCategory(category);
+  const subs = getSubCategories(slug);
+  const inCategory = useMemo(() => productsByCategory(slug), [slug]);
+  const brands = useMemo(() => brandsInList(inCategory).map((b) => b.brand), [inCategory]);
 
-  const parent = category?.parent_slug
-    ? categories.find((c) => c.slug === category.parent_slug)
-    : null;
-  const subs = categories.filter((c) => c.parent_slug === slug);
-  const scope = useMemo(() => categoryTreeSlugs(categories, slug), [categories, slug]);
+  const filtered = useMemo(
+    () =>
+      sortProducts(
+        filterProducts(inCategory, {
+          categories: selectedSubs,
+          brands: selectedBrands,
+          inStock: onlyStock,
+          maxPrice,
+        }),
+        sort,
+      ),
+    [inCategory, selectedSubs, selectedBrands, onlyStock, maxPrice, sort],
+  );
 
-  const filtered = useMemo(() => {
-    let list = products.filter((p) => scope.includes(p.category_slug));
-    if (selectedSubs.length) list = list.filter((p) => selectedSubs.includes(p.category_slug));
-    if (selectedBrands.length)
-      list = list.filter((p) => selectedBrands.includes(p.brand_slug ?? ""));
-    if (onlyStock) list = list.filter((p) => p.in_stock);
-    list = list.filter((p) => p.price === null || Number(p.price) <= maxPrice);
-    if (sort === "prix-croissant")
-      list = [...list].sort((a, b) => Number(a.price ?? Infinity) - Number(b.price ?? Infinity));
-    if (sort === "prix-decroissant")
-      list = [...list].sort((a, b) => Number(b.price ?? 0) - Number(a.price ?? 0));
-    if (sort === "nouveautes")
-      list = [...list].sort((a, b) => Number(b.is_new) - Number(a.is_new));
-    return list;
-  }, [products, scope, selectedSubs, selectedBrands, onlyStock, maxPrice, sort]);
-
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const shown = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const { items: shown, pageCount } = paginate(filtered, page, PAGE_SIZE);
 
   const chips = [
     ...selectedSubs.map((s) => ({
-      label: categories.find((c) => c.slug === s)?.name ?? s,
+      label: categoryName(s),
       clear: () => setSelectedSubs((v) => v.filter((x) => x !== s)),
     })),
     ...selectedBrands.map((b) => ({
@@ -103,11 +101,7 @@ function CategoryPage() {
     ...(onlyStock ? [{ label: "En stock", clear: () => setOnlyStock(false) }] : []),
   ];
 
-  const toggle = (
-    value: string,
-    list: string[],
-    setter: (v: string[]) => void,
-  ) => {
+  const toggle = (value: string, list: string[], setter: (v: string[]) => void) => {
     setPage(1);
     setter(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
   };
@@ -194,13 +188,11 @@ function CategoryPage() {
           </>
         )}
         {" / "}
-        <span className="text-foreground">{category?.name ?? slug}</span>
+        <span className="text-foreground">{category.name}</span>
       </nav>
 
-      <h1 className="mt-4 text-3xl">{category?.name ?? slug}</h1>
-      {category?.intro && (
-        <p className="mt-2 max-w-3xl text-muted-foreground">{category.intro}</p>
-      )}
+      <h1 className="mt-4 text-3xl">{category.name}</h1>
+      {category.intro && <p className="mt-2 max-w-3xl text-muted-foreground">{category.intro}</p>}
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[260px_1fr]">
         <aside className="hidden lg:block">
@@ -224,7 +216,7 @@ function CategoryPage() {
             <div className="flex items-center gap-2">
               <select
                 value={sort}
-                onChange={(e) => setSort(e.target.value)}
+                onChange={(e) => setSort(e.target.value as SortKey)}
                 aria-label="Trier les produits"
                 className="h-9 rounded-md border border-input bg-background px-3 text-sm"
               >
@@ -275,16 +267,14 @@ function CategoryPage() {
               view === "grid" ? "sm:grid-cols-2 xl:grid-cols-3" : "grid-cols-1",
             )}
           >
-            {isLoading
-              ? Array.from({ length: 6 }).map((_, i) => <ProductCardSkeleton key={i} />)
-              : shown.map((p, i) => (
-                  <Reveal key={p.id} delay={i * 40}>
-                    <ProductCard product={p} list={view === "list"} />
-                  </Reveal>
-                ))}
+            {shown.map((p, i) => (
+              <Reveal key={p.slug} delay={i * 40}>
+                <ProductCard product={p} list={view === "list"} />
+              </Reveal>
+            ))}
           </div>
 
-          {!isLoading && filtered.length === 0 && (
+          {filtered.length === 0 && (
             <div className="card-surface mt-6 p-12 text-center">
               <SlidersHorizontal className="float-soft mx-auto size-10 text-muted-foreground" />
               <p className="mt-4 font-semibold">Aucun produit ne correspond à vos filtres</p>

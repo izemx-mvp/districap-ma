@@ -2,28 +2,19 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Clock, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
-import logo from "@/assets/logo-districap.png.asset.json";
+import logo from "@/assets/logo_districap.png";
 import { SITE } from "@/lib/site";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function SiteFooter() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
-  const [busy, setBusy] = useState(false);
 
-  const subscribe = async (event: React.FormEvent) => {
+  const subscribe = (event: React.FormEvent) => {
     event.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast.error("Merci de saisir une adresse e-mail valide.");
-      return;
-    }
-    setBusy(true);
-    const { error } = await supabase.from("newsletter_subscribers").insert({ email });
-    setBusy(false);
-    if (error && !error.message.includes("duplicate")) {
-      toast.error("L'inscription n'a pas pu être enregistrée. Réessayez.");
       return;
     }
     setDone(true);
@@ -35,12 +26,11 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="inline-block rounded-md bg-background p-3">
-            <img src={logo.url} alt="DISTRICAP" className="w-[170px]" />
+            <img src={logo} alt="DISTRICAP" className="w-[170px]" />
           </div>
           <p className="mt-4 text-sm opacity-80">
-            Distributeur marocain de matériel informatique, audiovisuel et de sécurité
-            électronique depuis 2009. Conseil, fourniture et accompagnement de projet
-            partout au Maroc.
+            Distributeur marocain de matériel informatique, audiovisuel et de sécurité électronique
+            depuis 2009. Conseil, fourniture et accompagnement de projet partout au Maroc.
           </p>
           <div className="mt-5 flex gap-3">
             <a
@@ -163,9 +153,7 @@ export function SiteFooter() {
                 className="bg-background text-foreground"
                 required
               />
-              <Button type="submit" disabled={busy}>
-                {busy ? "Envoi…" : "Je m'inscris"}
-              </Button>
+              <Button type="submit">Je m'inscris</Button>
             </form>
           )}
         </div>

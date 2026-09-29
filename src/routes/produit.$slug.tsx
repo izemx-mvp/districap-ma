@@ -1,10 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { Check, Download, FileText, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
-import { categoriesQuery, productQuery, productsQuery } from "@/lib/catalog";
-import { productImage } from "@/lib/images";
+import {
+  brandName,
+  mainImage,
+  getCategory,
+  getParentCategory,
+  getProduct,
+  similarProducts,
+} from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { useCart } from "@/lib/cart";
 import { whatsappLink } from "@/lib/site";
@@ -14,70 +19,60 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/produit/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug.replace(/-/g, " ")} – DISTRICAP` },
-      {
-        name: "description",
-        content:
-          "Fiche produit DISTRICAP : caractéristiques techniques, prix en MAD, disponibilité et commande avec paiement à la livraison partout au Maroc.",
-      },
-      { property: "og:title", content: `${params.slug.replace(/-/g, " ")} – DISTRICAP` },
-      {
-        property: "og:description",
-        content: "Matériel professionnel distribué par DISTRICAP à Casablanca.",
-      },
-      { property: "og:type", content: "product" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  loader: ({ params }) => {
+    const product = getProduct(params.slug);
+    if (!product) throw notFound();
+    return { product };
+  },
+  head: ({ loaderData }) => {
+    const product = loaderData?.product;
+    const title = `${product?.name ?? "Produit"} – DISTRICAP`;
+    const description = product
+      ? `${product.short_description} Réf. ${product.sku}, ${brandName(product.brand)}. Livraison partout au Maroc, paiement à la livraison.`
+      : "Fiche produit DISTRICAP : caractéristiques techniques, prix en MAD et disponibilité.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        ...(product ? [{ property: "og:image", content: mainImage(product) }] : []),
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+    };
+  },
+  notFoundComponent: ProductNotFound,
   component: ProductPage,
 });
 
+function ProductNotFound() {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-20 text-center">
+      <h1 className="text-2xl">Produit introuvable</h1>
+      <p className="mt-2 text-muted-foreground">
+        Cette référence n'est plus disponible dans notre catalogue.
+      </p>
+      <Button asChild className="mt-6">
+        <Link to="/">Retour à l'accueil</Link>
+      </Button>
+    </div>
+  );
+}
+
 function ProductPage() {
-  const { slug } = Route.useParams();
-  const { data: product, isLoading } = useQuery(productQuery(slug));
-  const { data: products = [] } = useQuery(productsQuery);
-  const { data: categories = [] } = useQuery(categoriesQuery);
+  const { product } = Route.useLoaderData();
   const { add, setDrawerOpen } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  if (isLoading) {
-    return (
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 lg:grid-cols-2">
-        <div className="shimmer aspect-square rounded-xl" />
-        <div className="space-y-4">
-          <div className="shimmer h-8 w-2/3 rounded" />
-          <div className="shimmer h-4 w-1/3 rounded" />
-          <div className="shimmer h-24 w-full rounded" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <h1 className="text-2xl">Produit introuvable</h1>
-        <p className="mt-2 text-muted-foreground">
-          Cette référence n'est plus disponible dans notre catalogue.
-        </p>
-        <Button asChild className="mt-6">
-          <Link to="/">Retour à l'accueil</Link>
-        </Button>
-      </div>
-    );
-  }
-
-  const price = product.price === null ? null : Number(product.price);
-  const oldPrice = product.old_price === null ? null : Number(product.old_price);
-  const image = productImage(product.image_key);
-  const category = categories.find((c) => c.slug === product.category_slug);
-  const specs = (product.specs ?? {}) as Record<string, string>;
-  const similar = products
-    .filter((p) => p.category_slug === product.category_slug && p.slug !== product.slug)
-    .slice(0, 4);
+  const price = product.price;
+  const oldPrice = product.old_price;
+  const image = mainImage(product);
+  const category = getCategory(product.category);
+  const parentCategory = category ? getParentCategory(category) : undefined;
+  const specs = product.specs;
+  const similar = similarProducts(product, 4);
 
   const addToCart = () => {
     add(
@@ -86,7 +81,7 @@ function ProductPage() {
         name: product.name,
         sku: product.sku,
         price,
-        imageKey: product.image_key,
+        image,
       },
       quantity,
     );
@@ -106,18 +101,20 @@ function ProductPage() {
             "@type": "Product",
             name: product.name,
             sku: product.sku,
-            brand: { "@type": "Brand", name: product.brand_slug ?? "DISTRICAP" },
+            brand: { "@type": "Brand", name: brandName(product.brand) },
             description: product.short_description,
-            offers: price
-              ? {
-                  "@type": "Offer",
-                  price,
-                  priceCurrency: "MAD",
-                  availability: product.in_stock
-                    ? "https://schema.org/InStock"
-                    : "https://schema.org/PreOrder",
-                }
-              : undefined,
+            image,
+            offers:
+              price !== null
+                ? {
+                    "@type": "Offer",
+                    price,
+                    priceCurrency: "MAD",
+                    availability: product.in_stock
+                      ? "https://schema.org/InStock"
+                      : "https://schema.org/PreOrder",
+                  }
+                : undefined,
           }),
         }}
       />
@@ -126,6 +123,18 @@ function ProductPage() {
         <Link to="/" className="hover:text-primary">
           Accueil
         </Link>
+        {parentCategory && (
+          <>
+            {" / "}
+            <Link
+              to="/categorie/$slug"
+              params={{ slug: parentCategory.slug }}
+              className="hover:text-primary"
+            >
+              {parentCategory.name}
+            </Link>
+          </>
+        )}
         {category && (
           <>
             {" / "}
@@ -155,7 +164,7 @@ function ProductPage() {
 
         <div className="lg:sticky lg:top-40 lg:self-start">
           <p className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-            {product.brand_slug}
+            {brandName(product.brand)}
           </p>
           <h1 className="mt-1 text-3xl">{product.name}</h1>
           <p className="mt-2 text-sm text-muted-foreground">Référence : {product.sku}</p>
@@ -287,10 +296,9 @@ function ProductPage() {
         </TabsContent>
         <TabsContent value="livraison" className="rise-in max-w-3xl pt-6 text-muted-foreground">
           <p>
-            Livraison partout au Maroc depuis notre dépôt de Casablanca. Le règlement
-            s'effectue en espèces à la réception de votre commande (paiement à la
-            livraison). Les frais de livraison sont confirmés lors de la validation de la
-            commande par notre équipe.
+            Livraison partout au Maroc depuis notre dépôt de Casablanca. Le règlement s'effectue en
+            espèces à la réception de votre commande (paiement à la livraison). Les frais de
+            livraison sont confirmés lors de la validation de la commande par notre équipe.
           </p>
         </TabsContent>
       </Tabs>
@@ -300,7 +308,7 @@ function ProductPage() {
           <h2 className="text-2xl">Produits similaires</h2>
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {similar.map((p, i) => (
-              <Reveal key={p.id} delay={i * 70}>
+              <Reveal key={p.slug} delay={i * 70}>
                 <ProductCard product={p} />
               </Reveal>
             ))}
