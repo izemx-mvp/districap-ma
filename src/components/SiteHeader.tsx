@@ -257,7 +257,19 @@ export function SiteHeader() {
                 )}
               </li>
             ))}
+            <li className="ml-auto flex items-center gap-6">
+              <Link to="/services" className="nav-underline py-2">
+                Services
+              </Link>
+              <Link to="/a-propos" className="nav-underline py-2">
+                À propos
+              </Link>
+              <Link to="/contact" className="nav-underline py-2">
+                Contact
+              </Link>
+            </li>
           </ul>
+
         </nav>
       </div>
 
