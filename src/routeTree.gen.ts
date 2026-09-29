@@ -10,33 +10,167 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AProposRouteImport } from './routes/a-propos'
+import { Route as CommandeRouteImport } from './routes/commande'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DevisRouteImport } from './routes/devis'
+import { Route as PanierRouteImport } from './routes/panier'
+import { Route as RechercheRouteImport } from './routes/recherche'
+import { Route as ServicesRouteImport } from './routes/services'
+import { Route as CategorieSlugRouteImport } from './routes/categorie.$slug'
+import { Route as ConfirmationNumeroRouteImport } from './routes/confirmation.$numero'
+import { Route as ProduitSlugRouteImport } from './routes/produit.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AProposRoute = AProposRouteImport.update({
+  id: '/a-propos',
+  path: '/a-propos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandeRoute = CommandeRouteImport.update({
+  id: '/commande',
+  path: '/commande',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevisRoute = DevisRouteImport.update({
+  id: '/devis',
+  path: '/devis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanierRoute = PanierRouteImport.update({
+  id: '/panier',
+  path: '/panier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RechercheRoute = RechercheRouteImport.update({
+  id: '/recherche',
+  path: '/recherche',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategorieSlugRoute = CategorieSlugRouteImport.update({
+  id: '/categorie/$slug',
+  path: '/categorie/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmationNumeroRoute = ConfirmationNumeroRouteImport.update({
+  id: '/confirmation/$numero',
+  path: '/confirmation/$numero',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProduitSlugRoute = ProduitSlugRouteImport.update({
+  id: '/produit/$slug',
+  path: '/produit/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/commande': typeof CommandeRoute
+  '/contact': typeof ContactRoute
+  '/devis': typeof DevisRoute
+  '/panier': typeof PanierRoute
+  '/recherche': typeof RechercheRoute
+  '/services': typeof ServicesRoute
+  '/categorie/$slug': typeof CategorieSlugRoute
+  '/confirmation/$numero': typeof ConfirmationNumeroRoute
+  '/produit/$slug': typeof ProduitSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/commande': typeof CommandeRoute
+  '/contact': typeof ContactRoute
+  '/devis': typeof DevisRoute
+  '/panier': typeof PanierRoute
+  '/recherche': typeof RechercheRoute
+  '/services': typeof ServicesRoute
+  '/categorie/$slug': typeof CategorieSlugRoute
+  '/confirmation/$numero': typeof ConfirmationNumeroRoute
+  '/produit/$slug': typeof ProduitSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/a-propos': typeof AProposRoute
+  '/commande': typeof CommandeRoute
+  '/contact': typeof ContactRoute
+  '/devis': typeof DevisRoute
+  '/panier': typeof PanierRoute
+  '/recherche': typeof RechercheRoute
+  '/services': typeof ServicesRoute
+  '/categorie/$slug': typeof CategorieSlugRoute
+  '/confirmation/$numero': typeof ConfirmationNumeroRoute
+  '/produit/$slug': typeof ProduitSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/a-propos'
+    | '/commande'
+    | '/contact'
+    | '/devis'
+    | '/panier'
+    | '/recherche'
+    | '/services'
+    | '/categorie/$slug'
+    | '/confirmation/$numero'
+    | '/produit/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/a-propos'
+    | '/commande'
+    | '/contact'
+    | '/devis'
+    | '/panier'
+    | '/recherche'
+    | '/services'
+    | '/categorie/$slug'
+    | '/confirmation/$numero'
+    | '/produit/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/a-propos'
+    | '/commande'
+    | '/contact'
+    | '/devis'
+    | '/panier'
+    | '/recherche'
+    | '/services'
+    | '/categorie/$slug'
+    | '/confirmation/$numero'
+    | '/produit/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AProposRoute: typeof AProposRoute
+  CommandeRoute: typeof CommandeRoute
+  ContactRoute: typeof ContactRoute
+  DevisRoute: typeof DevisRoute
+  PanierRoute: typeof PanierRoute
+  RechercheRoute: typeof RechercheRoute
+  ServicesRoute: typeof ServicesRoute
+  CategorieSlugRoute: typeof CategorieSlugRoute
+  ConfirmationNumeroRoute: typeof ConfirmationNumeroRoute
+  ProduitSlugRoute: typeof ProduitSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +182,91 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/a-propos': {
+      id: '/a-propos'
+      path: '/a-propos'
+      fullPath: '/a-propos'
+      preLoaderRoute: typeof AProposRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commande': {
+      id: '/commande'
+      path: '/commande'
+      fullPath: '/commande'
+      preLoaderRoute: typeof CommandeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/devis': {
+      id: '/devis'
+      path: '/devis'
+      fullPath: '/devis'
+      preLoaderRoute: typeof DevisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panier': {
+      id: '/panier'
+      path: '/panier'
+      fullPath: '/panier'
+      preLoaderRoute: typeof PanierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recherche': {
+      id: '/recherche'
+      path: '/recherche'
+      fullPath: '/recherche'
+      preLoaderRoute: typeof RechercheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categorie/$slug': {
+      id: '/categorie/$slug'
+      path: '/categorie/$slug'
+      fullPath: '/categorie/$slug'
+      preLoaderRoute: typeof CategorieSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmation/$numero': {
+      id: '/confirmation/$numero'
+      path: '/confirmation/$numero'
+      fullPath: '/confirmation/$numero'
+      preLoaderRoute: typeof ConfirmationNumeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produit/$slug': {
+      id: '/produit/$slug'
+      path: '/produit/$slug'
+      fullPath: '/produit/$slug'
+      preLoaderRoute: typeof ProduitSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AProposRoute: AProposRoute,
+  CommandeRoute: CommandeRoute,
+  ContactRoute: ContactRoute,
+  DevisRoute: DevisRoute,
+  PanierRoute: PanierRoute,
+  RechercheRoute: RechercheRoute,
+  ServicesRoute: ServicesRoute,
+  CategorieSlugRoute: CategorieSlugRoute,
+  ConfirmationNumeroRoute: ConfirmationNumeroRoute,
+  ProduitSlugRoute: ProduitSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
