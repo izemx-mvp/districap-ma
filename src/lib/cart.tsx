@@ -30,6 +30,8 @@ type CartContextValue = {
   clear: () => void;
   drawerOpen: boolean;
   setDrawerOpen: (open: boolean) => void;
+  /** False until the cart has been read from localStorage. */
+  hydrated: boolean;
 };
 
 const STORAGE_KEY = "districap.cart.v1";
@@ -100,8 +102,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       clear,
       drawerOpen,
       setDrawerOpen,
+      hydrated,
     };
-  }, [lines, add, setQuantity, remove, clear, drawerOpen]);
+  }, [lines, add, setQuantity, remove, clear, drawerOpen, hydrated]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

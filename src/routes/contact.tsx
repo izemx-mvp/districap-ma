@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
-import { toast } from "sonner";
+import { useCallback, useState } from "react";
+import { Clock, Mail, MapPin, Phone, type LucideIcon } from "lucide-react";
 import { isValidMoroccanPhone } from "@/lib/format";
 import { summaryMessage } from "@/lib/order";
 import { SITE, whatsappLink } from "@/lib/site";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { EMAIL_RE, useFormState } from "@/lib/use-form";
+import { Field } from "@/components/forms/Field";
+import { Reveal } from "@/components/Reveal";
 import { SuccessCheck } from "@/components/SuccessCheck";
+import { WhatsAppGlyph } from "@/components/WhatsAppGlyph";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -31,57 +32,76 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
 });
 
+const MAP_QUERY = "Ain Harrouda, Casablanca, Maroc";
+
+type ContactFields = {
+  full_name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+};
+
+const EMPTY: ContactFields = { full_name: "", email: "", phone: "", subject: "", message: "" };
+const REQUIRED: (keyof ContactFields)[] = ["full_name", "email", "phone", "message"];
+
+function validate(v: ContactFields) {
+  const errors: Partial<Record<keyof ContactFields, string>> = {};
+  if (v.full_name.trim().length < 3) errors.full_name = "Indiquez votre nom complet.";
+  if (!EMAIL_RE.test(v.email.trim())) errors.email = "Adresse e-mail invalide.";
+  if (v.phone.trim() && !isValidMoroccanPhone(v.phone))
+    errors.phone = "Numéro marocain invalide (ex. 06 12 34 56 78).";
+  if (v.message.trim().length < 10) errors.message = "Votre message est trop court.";
+  return errors;
+}
+
+function InfoCard({
+  icon: Icon,
+  title,
+  children,
+  delay,
+}: {
+  icon: LucideIcon | typeof WhatsAppGlyph;
+  title: string;
+  children: React.ReactNode;
+  delay: number;
+}) {
+  return (
+    <Reveal delay={delay} className="card-surface group flex gap-4 p-5">
+      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+        <Icon className="size-5" />
+      </span>
+      <div className="min-w-0 text-sm">
+        <h2 className="text-base">{title}</h2>
+        <div className="mt-1 text-muted-foreground">{children}</div>
+      </div>
+    </Reveal>
+  );
+}
+
 function ContactPage() {
-  const [fields, setFields] = useState({
-    full_name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: "",
-  });
+  const form = useFormState(EMPTY, useCallback(validate, []));
   const [sent, setSent] = useState(false);
-
-  const set = (key: keyof typeof fields, value: string) =>
-    setFields((f) => ({ ...f, [key]: value }));
-
-  const validate = () => {
-    if (!fields.full_name.trim()) {
-      toast.error("Merci d'indiquer votre nom.");
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.email)) {
-      toast.error("Adresse e-mail invalide.");
-      return false;
-    }
-    if (fields.phone.trim() && !isValidMoroccanPhone(fields.phone)) {
-      toast.error("Numéro marocain invalide (ex. 06 12 34 56 78).");
-      return false;
-    }
-    if (fields.message.trim().length < 10) {
-      toast.error("Votre message est trop court.");
-      return false;
-    }
-    return true;
-  };
+  const v = form.values;
 
   const summary = summaryMessage("Bonjour DISTRICAP,", [
-    ["Nom", fields.full_name],
-    ["E-mail", fields.email],
-    ["Téléphone", fields.phone],
-    ["Sujet", fields.subject],
-    ["Message", fields.message],
+    ["Nom", v.full_name],
+    ["E-mail", v.email],
+    ["Téléphone", v.phone],
+    ["Sujet", v.subject],
+    ["Message", v.message],
   ]);
   const mailto = `mailto:${SITE.email}?subject=${encodeURIComponent(
-    fields.subject || "Demande d'information",
+    v.subject || "Demande d'information",
   )}&body=${encodeURIComponent(summary)}`;
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (validate()) setSent(true);
+    if (form.check(REQUIRED)) setSent(true);
   };
 
   const sendWhatsapp = () => {
-    if (!validate()) return;
+    if (!form.check(REQUIRED)) return;
     window.open(whatsappLink(summary), "_blank", "noreferrer");
     setSent(true);
   };
@@ -90,27 +110,82 @@ function ContactPage() {
     <div className="mx-auto max-w-7xl px-4 py-12">
       <h1 className="text-3xl">Contact</h1>
       <p className="mt-3 max-w-2xl text-muted-foreground">
-        Une question sur un produit, un projet à chiffrer ou un suivi de commande ? Notre équipe
-        vous répond du lundi au samedi.
+        Une question sur un produit, un projet à chiffrer ou un suivi de commande ? Écrivez-nous ou
+        appelez-nous aux horaires d'ouverture.
       </p>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-2">
+      <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.1fr]">
+        <div className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <InfoCard icon={Phone} title="Téléphone" delay={0}>
+              {SITE.phones.map((p) => (
+                <a
+                  key={p}
+                  href={`tel:${p.replace(/\s/g, "")}`}
+                  className="block font-medium text-foreground transition-colors hover:text-primary"
+                >
+                  {p}
+                </a>
+              ))}
+            </InfoCard>
+            <InfoCard icon={Mail} title="E-mail" delay={60}>
+              <a
+                href={`mailto:${SITE.email}`}
+                className="font-medium break-all text-foreground transition-colors hover:text-primary"
+              >
+                {SITE.email}
+              </a>
+            </InfoCard>
+            <InfoCard icon={WhatsAppGlyph} title="WhatsApp" delay={120}>
+              <a
+                href={whatsappLink("Bonjour DISTRICAP, j'aimerais des informations.")}
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-foreground transition-colors hover:text-primary"
+              >
+                Écrire sur WhatsApp
+              </a>
+            </InfoCard>
+            <InfoCard icon={Clock} title="Horaires" delay={180}>
+              {SITE.hours.map((h) => (
+                <span key={h} className="block">
+                  {h}
+                </span>
+              ))}
+            </InfoCard>
+          </div>
+          <InfoCard icon={MapPin} title="Adresse" delay={240}>
+            {SITE.address}
+          </InfoCard>
+          <Reveal delay={300} className="card-surface overflow-hidden">
+            <iframe
+              title="Plan d'accès – DISTRICAP, Ain Harrouda"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(MAP_QUERY)}&output=embed`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="block h-72 w-full border-0"
+            />
+          </Reveal>
+        </div>
+
         <div>
           {sent ? (
-            <div className="card-surface rise-in p-8 text-center">
+            <div className="card-surface rise-in p-8 text-center lg:sticky lg:top-32">
               <SuccessCheck />
               <h2 className="mt-4 text-xl">Merci, votre message est prêt</h2>
               <p className="mt-2 text-muted-foreground">
                 Transmettez-le à notre équipe via WhatsApp ou par e-mail, en un clic.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <Button asChild>
+                <Button asChild className="bg-[#0f7a5a] text-white hover:bg-[#0c6a4e]">
                   <a href={whatsappLink(summary)} target="_blank" rel="noreferrer">
-                    Envoyer via WhatsApp
+                    <WhatsAppGlyph className="size-4" /> Envoyer via WhatsApp
                   </a>
                 </Button>
                 <Button asChild variant="outline">
-                  <a href={mailto}>Envoyer par e-mail</a>
+                  <a href={mailto}>
+                    <Mail className="size-4" /> Envoyer par e-mail
+                  </a>
                 </Button>
               </div>
               <button
@@ -122,133 +197,48 @@ function ContactPage() {
               </button>
             </div>
           ) : (
-            <form onSubmit={submit} className="card-surface space-y-4 p-6">
-              <div>
-                <label htmlFor="c-nom" className="text-sm font-medium">
-                  Nom complet
-                </label>
-                <Input
-                  id="c-nom"
-                  required
-                  value={fields.full_name}
-                  onChange={(e) => set("full_name", e.target.value)}
-                  className="mt-1"
-                />
-              </div>
+            <form
+              onSubmit={submit}
+              noValidate
+              className="card-surface space-y-4 p-6 lg:sticky lg:top-32"
+            >
+              <h2 className="text-xl">Envoyez-nous un message</h2>
+              <Field label="Nom complet" autoComplete="name" {...form.field("full_name")} />
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="c-email" className="text-sm font-medium">
-                    E-mail
-                  </label>
-                  <Input
-                    id="c-email"
-                    type="email"
-                    required
-                    value={fields.email}
-                    onChange={(e) => set("email", e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="c-tel" className="text-sm font-medium">
-                    Téléphone
-                  </label>
-                  <Input
-                    id="c-tel"
-                    type="tel"
-                    value={fields.phone}
-                    onChange={(e) => set("phone", e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="c-sujet" className="text-sm font-medium">
-                  Sujet
-                </label>
-                <Input
-                  id="c-sujet"
-                  value={fields.subject}
-                  onChange={(e) => set("subject", e.target.value)}
-                  className="mt-1"
+                <Field
+                  label="E-mail"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  {...form.field("email")}
+                />
+                <Field
+                  label="Téléphone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  optional
+                  {...form.field("phone")}
                 />
               </div>
-              <div>
-                <label htmlFor="c-msg" className="text-sm font-medium">
-                  Message
-                </label>
-                <Textarea
-                  id="c-msg"
-                  rows={5}
-                  required
-                  value={fields.message}
-                  onChange={(e) => set("message", e.target.value)}
-                  className="mt-1"
-                />
-              </div>
+              <Field label="Sujet" optional {...form.field("subject")} />
+              <Field label="Message" multiline rows={6} {...form.field("message")} />
               <div className="grid gap-3 sm:grid-cols-2">
-                <Button type="submit" className="press w-full">
+                <Button type="submit" size="lg" className="press w-full">
                   Envoyer le message
                 </Button>
                 <Button
                   type="button"
+                  size="lg"
                   variant="outline"
                   className="press w-full"
                   onClick={sendWhatsapp}
                 >
-                  Envoyer via WhatsApp
+                  <WhatsAppGlyph className="size-4" /> Envoyer via WhatsApp
                 </Button>
               </div>
             </form>
           )}
-        </div>
-
-        <div className="space-y-6">
-          <div className="card-surface p-6">
-            <ul className="space-y-4 text-sm">
-              <li className="flex gap-3">
-                <MapPin className="mt-0.5 size-5 shrink-0 text-primary" />
-                {SITE.address}
-              </li>
-              {SITE.phones.map((p) => (
-                <li key={p} className="flex gap-3">
-                  <Phone className="mt-0.5 size-5 shrink-0 text-primary" />
-                  <a href={`tel:${p.replace(/\s/g, "")}`}>{p}</a>
-                </li>
-              ))}
-              <li className="flex gap-3">
-                <Mail className="mt-0.5 size-5 shrink-0 text-primary" />
-                <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
-              </li>
-              <li className="flex gap-3">
-                <Clock className="mt-0.5 size-5 shrink-0 text-primary" />
-                <span>
-                  {SITE.hours.map((h) => (
-                    <span key={h} className="block">
-                      {h}
-                    </span>
-                  ))}
-                </span>
-              </li>
-            </ul>
-            <Button asChild className="mt-6 w-full">
-              <a
-                href={whatsappLink("Bonjour DISTRICAP, j'aimerais des informations.")}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Écrire sur WhatsApp
-              </a>
-            </Button>
-          </div>
-
-          <div className="card-surface grid h-64 place-items-center bg-surface text-sm text-muted-foreground">
-            <div className="text-center">
-              <MapPin className="mx-auto size-8 text-primary" />
-              <p className="mt-2">Ain Harrouda, Casablanca</p>
-              <p className="text-xs">Plan interactif à venir</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

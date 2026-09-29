@@ -494,6 +494,57 @@
   animation: flip-down 220ms var(--ease-entrance) both;
 }
 
+/* --- Forms ------------------------------------------------------------ */
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+@utility shake {
+  animation: shake 360ms ease-in-out;
+}
+
+@keyframes step-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes step-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility step-in-right {
+  animation: step-in-right 380ms var(--ease-entrance) both;
+}
+
+@utility step-in-left {
+  animation: step-in-left 380ms var(--ease-entrance) both;
+}
+
 /* --- Navigation ------------------------------------------------------ */
 
 @utility mega-panel {

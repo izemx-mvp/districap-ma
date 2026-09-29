@@ -1,66 +1,75 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Trash2, X } from "lucide-react";
+import { ArrowRight, Banknote, ShoppingCart } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
+import { CartLines } from "@/components/CartLines";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 export function CartDrawer() {
-  const { lines, subtotal, remove, drawerOpen, setDrawerOpen } = useCart();
+  const { lines, count, subtotal, drawerOpen, setDrawerOpen } = useCart();
+  const close = () => setDrawerOpen(false);
+  const hasQuoteItems = lines.some((l) => l.price === null);
 
   return (
     <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-      <SheetContent side="right" className="flex w-[92vw] max-w-md flex-col">
-        <SheetHeader>
+      <SheetContent side="right" className="flex w-[92vw] max-w-md flex-col gap-0">
+        <SheetHeader className="border-b border-border">
           <SheetTitle>Votre panier</SheetTitle>
+          <SheetDescription>
+            {count === 0 ? "Aucun article" : `${count} article${count > 1 ? "s" : ""}`}
+          </SheetDescription>
         </SheetHeader>
-        <div className="flex-1 space-y-3 overflow-y-auto px-4">
-          {lines.length === 0 && (
-            <div className="py-12 text-center">
+
+        <div className="flex-1 overflow-y-auto px-4">
+          {lines.length === 0 ? (
+            <div className="rise-in py-16 text-center">
               <ShoppingCart className="float-soft mx-auto size-10 text-muted-foreground" />
-              <p className="mt-4 text-sm text-muted-foreground">
-                Votre panier est vide pour le moment.
-              </p>
+              <p className="mt-4 font-medium">Votre panier est vide pour le moment.</p>
+              <Button asChild variant="outline" className="mt-6">
+                <Link to="/nouveautes" onClick={close}>
+                  Découvrir les nouveautés
+                </Link>
+              </Button>
             </div>
+          ) : (
+            <CartLines compact onNavigate={close} />
           )}
-          {lines.map((line) => (
-            <div key={line.slug} className="rise-in flex gap-3 border-b border-border pb-3">
-              <img
-                src={line.image}
-                alt=""
-                loading="lazy"
-                className="size-16 rounded-md border border-border object-contain"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{line.name}</p>
-                <p className="text-xs text-muted-foreground">Qté {line.quantity}</p>
-                <p className="text-sm font-semibold text-primary">{formatPrice(line.price)}</p>
-              </div>
-              <button
-                type="button"
-                aria-label={`Retirer ${line.name}`}
-                onClick={() => remove(line.slug)}
-                className="press self-start rounded-md p-1 text-muted-foreground transition-colors hover:text-primary"
-              >
-                <Trash2 className="size-4" />
-              </button>
+        </div>
+
+        {lines.length > 0 && (
+          <div className="space-y-3 border-t border-border bg-surface p-4">
+            <div className="flex items-center justify-between font-semibold">
+              <span>Sous-total TTC</span>
+              <span className="text-lg text-primary">
+                <AnimatedNumber value={subtotal} format={formatPrice} />
+              </span>
             </div>
-          ))}
-        </div>
-        <div className="space-y-3 border-t border-border p-4">
-          <div className="flex items-center justify-between font-semibold">
-            <span>Sous-total</span>
-            <span>{formatPrice(subtotal)}</span>
+            <p className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Banknote className="mt-px size-4 shrink-0 text-primary" />
+              Paiement à la livraison, en espèces. Frais de livraison confirmés par notre équipe.
+              {hasQuoteItems && " Les articles « Sur devis » seront chiffrés séparément."}
+            </p>
+            <Button asChild size="lg" className="press group w-full">
+              <Link to="/commande" onClick={close}>
+                Commander
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/panier" onClick={close}>
+                Voir le panier
+              </Link>
+            </Button>
           </div>
-          <Button asChild className="w-full" disabled={lines.length === 0}>
-            <Link to="/panier" onClick={() => setDrawerOpen(false)}>
-              Voir le panier
-            </Link>
-          </Button>
-          <Button variant="outline" className="w-full" onClick={() => setDrawerOpen(false)}>
-            <X className="size-4" /> Continuer mes achats
-          </Button>
-        </div>
+        )}
       </SheetContent>
     </Sheet>
   );

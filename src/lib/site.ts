@@ -6,10 +6,7 @@ export const SITE = {
   whatsapp: "212668499359",
   address:
     "Quartier industriel polygone EST lot 114, Route côtière, Ain Harrouda, Casablanca, Maroc",
-  hours: [
-    "Lundi – Vendredi : 08h30 – 12h30 / 14h30 – 18h30",
-    "Samedi : 08h30 – 12h30",
-  ],
+  hours: ["Lundi – Vendredi : 08h30 – 12h30 / 14h30 – 18h30", "Samedi : 08h30 – 12h30"],
   social: {
     facebook: "https://www.facebook.com/",
     linkedin: "https://www.linkedin.com/",
@@ -49,6 +46,7 @@ export const PROJECT_TYPES = [
   "Vidéosurveillance",
   "Détection incendie",
   "Alarme & Intrusion",
+  "Contrôle d'accès",
   "Sonorisation",
   "Audiovisuel",
   "Informatique & Réseau",
@@ -63,10 +61,4 @@ export const BUDGET_RANGES = [
   "À définir",
 ];
 
-export const ORDER_STATUSES = [
-  "Nouvelle",
-  "Confirmée",
-  "Expédiée",
-  "Livrée",
-  "Annulée",
-];
+export const ORDER_STATUSES = ["Nouvelle", "Confirmée", "Expédiée", "Livrée", "Annulée"];
