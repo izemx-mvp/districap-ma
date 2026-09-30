@@ -14,8 +14,10 @@ import { Route as AProposRouteImport } from './routes/a-propos'
 import { Route as CgvRouteImport } from './routes/cgv'
 import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DevisRouteImport } from './routes/devis'
+import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as NouveautesRouteImport } from './routes/nouveautes'
 import { Route as PanierRouteImport } from './routes/panier'
 import { Route as PlanDuSiteRouteImport } from './routes/plan-du-site'
@@ -50,6 +52,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
   path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConnexionRoute = ConnexionRouteImport.update({
+  id: '/connexion',
+  path: '/connexion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -58,6 +65,11 @@ const ContactRoute = ContactRouteImport.update({
 const DevisRoute = DevisRouteImport.update({
   id: '/devis',
   path: '/devis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InscriptionRoute = InscriptionRouteImport.update({
+  id: '/inscription',
+  path: '/inscription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NouveautesRoute = NouveautesRouteImport.update({
@@ -107,8 +119,10 @@ export interface FileRoutesByFullPath {
   '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/connexion': typeof ConnexionRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
+  '/inscription': typeof InscriptionRoute
   '/nouveautes': typeof NouveautesRoute
   '/panier': typeof PanierRoute
   '/plan-du-site': typeof PlanDuSiteRoute
@@ -124,8 +138,10 @@ export interface FileRoutesByTo {
   '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/connexion': typeof ConnexionRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
+  '/inscription': typeof InscriptionRoute
   '/nouveautes': typeof NouveautesRoute
   '/panier': typeof PanierRoute
   '/plan-du-site': typeof PlanDuSiteRoute
@@ -142,8 +158,10 @@ export interface FileRoutesById {
   '/cgv': typeof CgvRoute
   '/commande': typeof CommandeRoute
   '/confidentialite': typeof ConfidentialiteRoute
+  '/connexion': typeof ConnexionRoute
   '/contact': typeof ContactRoute
   '/devis': typeof DevisRoute
+  '/inscription': typeof InscriptionRoute
   '/nouveautes': typeof NouveautesRoute
   '/panier': typeof PanierRoute
   '/plan-du-site': typeof PlanDuSiteRoute
@@ -161,8 +179,10 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/commande'
     | '/confidentialite'
+    | '/connexion'
     | '/contact'
     | '/devis'
+    | '/inscription'
     | '/nouveautes'
     | '/panier'
     | '/plan-du-site'
@@ -178,8 +198,10 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/commande'
     | '/confidentialite'
+    | '/connexion'
     | '/contact'
     | '/devis'
+    | '/inscription'
     | '/nouveautes'
     | '/panier'
     | '/plan-du-site'
@@ -195,8 +217,10 @@ export interface FileRouteTypes {
     | '/cgv'
     | '/commande'
     | '/confidentialite'
+    | '/connexion'
     | '/contact'
     | '/devis'
+    | '/inscription'
     | '/nouveautes'
     | '/panier'
     | '/plan-du-site'
@@ -213,8 +237,10 @@ export interface RootRouteChildren {
   CgvRoute: typeof CgvRoute
   CommandeRoute: typeof CommandeRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
+  ConnexionRoute: typeof ConnexionRoute
   ContactRoute: typeof ContactRoute
   DevisRoute: typeof DevisRoute
+  InscriptionRoute: typeof InscriptionRoute
   NouveautesRoute: typeof NouveautesRoute
   PanierRoute: typeof PanierRoute
   PlanDuSiteRoute: typeof PlanDuSiteRoute
@@ -262,6 +288,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/connexion': {
+      id: '/connexion'
+      path: '/connexion'
+      fullPath: '/connexion'
+      preLoaderRoute: typeof ConnexionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -274,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/devis'
       fullPath: '/devis'
       preLoaderRoute: typeof DevisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inscription': {
+      id: '/inscription'
+      path: '/inscription'
+      fullPath: '/inscription'
+      preLoaderRoute: typeof InscriptionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nouveautes': {
@@ -341,8 +381,10 @@ const rootRouteChildren: RootRouteChildren = {
   CgvRoute: CgvRoute,
   CommandeRoute: CommandeRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
+  ConnexionRoute: ConnexionRoute,
   ContactRoute: ContactRoute,
   DevisRoute: DevisRoute,
+  InscriptionRoute: InscriptionRoute,
   NouveautesRoute: NouveautesRoute,
   PanierRoute: PanierRoute,
   PlanDuSiteRoute: PlanDuSiteRoute,

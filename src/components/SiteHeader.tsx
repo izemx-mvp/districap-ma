@@ -7,6 +7,7 @@ import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/button";
 import { CartDrawer } from "@/components/CartDrawer";
 import { WhatsAppGlyph } from "@/components/WhatsAppGlyph";
+import { AccountMenu } from "@/components/header/AccountMenu";
 import { MegaMenu } from "@/components/header/MegaMenu";
 import { MobileNav } from "@/components/header/MobileNav";
 import { MobileSearch } from "@/components/header/MobileSearch";
@@ -161,6 +162,7 @@ export function SiteHeader() {
                 <FileText className="size-4" /> Demander un devis
               </Link>
             </Button>
+            <AccountMenu />
             <button
               type="button"
               data-cart-target

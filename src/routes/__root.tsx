@@ -12,6 +12,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AccountProvider } from "@/lib/account";
 import { CartProvider } from "@/lib/cart";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -50,9 +51,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight">
-          Cette page n'a pas pu se charger
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight">Cette page n'a pas pu se charger</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Une erreur est survenue. Vous pouvez réessayer ou revenir à l'accueil.
         </p>
@@ -139,22 +138,24 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <div
-          aria-hidden
-          className="fixed inset-x-0 top-0 z-[60] h-0.5 bg-primary transition-opacity duration-300"
-          style={{ opacity: isLoading ? 1 : 0 }}
-        />
+      <AccountProvider>
+        <CartProvider>
+          <div
+            aria-hidden
+            className="fixed inset-x-0 top-0 z-[60] h-0.5 bg-primary transition-opacity duration-300"
+            style={{ opacity: isLoading ? 1 : 0 }}
+          />
 
-        <SiteHeader />
-        <main className="min-h-[60vh]">
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </main>
-        <SiteFooter />
-        <FloatingActions />
-        <Toaster position="top-right" richColors />
-      </CartProvider>
+          <SiteHeader />
+          <main className="min-h-[60vh]">
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </main>
+          <SiteFooter />
+          <FloatingActions />
+          <Toaster position="top-right" richColors />
+        </CartProvider>
+      </AccountProvider>
     </QueryClientProvider>
   );
 }
